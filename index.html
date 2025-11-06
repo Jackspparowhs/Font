@@ -125,7 +125,7 @@
   <div class="results" id="results">
     <div class="results-header">
       <div><strong id="countLabel">0</strong> results</div>
-      <div class="muted">Client-side transforms — no API</div>
+      <div class="muted">Instant & private — transforms run locally in your browser for fast copying and editing.</div>
     </div>
     <!-- categories + transforms injected here by JS -->
   </div>
@@ -188,17 +188,16 @@ function joinSep(s, sep){ return Array.from(s).join(sep); }
 /* small mapping tables */
 const SMALL_CAPS = { a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'s',t:'ᴛ',u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ'};
 const UPSIDE = { a:'ɐ',b:'q',c:'ɔ',d:'p',e:'ǝ',f:'ɟ',g:'ɓ',h:'ɥ',i:'ᴉ',j:'ɾ',k:'ʞ',l:'ʃ',m:'ɯ',n:'u',o:'o',p:'d',q:'b',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z',
-  '.':'˙','?':'¿','!':'¡','\'':',','"':',,','(':')',')':'(','[':']',']':'[','<':'>','>':'<'};
+  '.':'˙','?':'¿','!':'¡','\'':',','"':',,','(':')',')':'(','[':']',']':'[','<':'>','>' :'<'};
 const MIRROR = { a:'ɒ', b:'q', c:'ɔ', d:'p', e:'ɘ', f:'ɟ', g:'ɓ', h:'ɥ', i:'ı', j:'ɾ', k:'ʞ', l:'l', m:'ɯ', n:'u', o:'o', p:'d', q:'b', r:'ɿ', s:'s', t:'ʇ', u:'n', v:'ʌ', w:'ʍ', x:'x', y:'ʎ', z:'z' };
 const CIRCLE = (function(){ const m={}; for(let i=0;i<26;i++){ m[String.fromCharCode(65+i)]=String.fromCharCode(0x24B6+i); m[String.fromCharCode(97+i)]=String.fromCharCode(0x24D0+i);} for(let i=0;i<10;i++){ m[String(i)]=["⓪","①","②","③","④","⑤","⑥","⑦","⑧","⑨"][i]; } return m; })();
-const BUBBLE = CIRCLE; // reuse circled as bubble
+const BUBBLE = CIRCLE;
 const FULLWIDTH = (function(){ const m={}; for(let i=0;i<26;i++){ m[String.fromCharCode(65+i)]=String.fromCharCode(0xFF21+i); m[String.fromCharCode(97+i)]=String.fromCharCode(0xFF41+i);} for(let i=0;i<10;i++) m[String(i)]=String.fromCharCode(0xFF10+i); return m; })();
 
 /* combining diacritics for accenting */
 const COMBINING = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0306','\u0307','\u0308','\u0327','\u0323'];
 
 /* ---------- base transforms ---------- */
-/* lightweight base transforms (we will auto-combine to hit 150+) */
 const BASE_TRANSFORMS = [
   {id:'plain', name:'Plain', cat:'Basic', fn: s => s},
   {id:'upper', name:'UPPERCASE', cat:'Basic', fn: s => s.toUpperCase()},
@@ -227,8 +226,6 @@ const BASE_TRANSFORMS = [
 function compose(fn1, fn2){
   return s => fn2(fn1(s));
 }
-
-/* decorator helpers */
 const DECORATORS = [
   {id:'spaced', name:' Spaced', fn: s => joinSep(s,' ')},
   {id:'dot', name:' ·dotted', fn: s => joinSep(s,'·')},
@@ -242,12 +239,8 @@ const DECORATORS = [
   {id:'mirror', name:' (mirror)', fn: s => mapWithTable(s, MIRROR)}
 ];
 
-/* Build final TRANSFORMS array programmatically */
 let TRANSFORMS = [];
-// first include all base transforms
 BASE_TRANSFORMS.forEach(t => TRANSFORMS.push(Object.assign({}, t)));
-
-// now generate combinations: for each base, apply each decorator and combinations of 2 decorators
 BASE_TRANSFORMS.forEach(base => {
   DECORATORS.forEach(dec => {
     TRANSFORMS.push({
@@ -257,7 +250,6 @@ BASE_TRANSFORMS.forEach(base => {
       fn: compose(base.fn, dec.fn)
     });
   });
-  // combos of two decorators (limited)
   for(let i=0;i<DECORATORS.length;i++){
     for(let j=i+1;j<DECORATORS.length;j++){
       const d1 = DECORATORS[i], d2 = DECORATORS[j];
@@ -271,7 +263,6 @@ BASE_TRANSFORMS.forEach(base => {
   }
 });
 
-// additional generated stylistic transforms (fullwidth variants, doubled, wrapped with emoji, etc.)
 const EXTRA = [
   {name:'Star-wrapped ✦', cat:'Decor', fn: s => `✦ ${s} ✦`},
   {name:'Arrowed →', cat:'Decor', fn: s => Array.from(s).join(' → ')},
@@ -284,7 +275,6 @@ EXTRA.forEach((ex,i) => {
   TRANSFORMS.push({id:'extra_'+i, name:ex.name, cat:ex.cat, fn:ex.fn});
 });
 
-// Ensure uniqueness and order
 const seen = new Set();
 TRANSFORMS = TRANSFORMS.filter(t => {
   if(seen.has(t.name)) return false;
@@ -292,7 +282,6 @@ TRANSFORMS = TRANSFORMS.filter(t => {
   return true;
 });
 
-// If the generation didn't reach 150, produce more simple decorated variations programmatically
 let idx = 0;
 while(TRANSFORMS.length < 160){
   const base = BASE_TRANSFORMS[idx % BASE_TRANSFORMS.length];
@@ -313,7 +302,7 @@ function groupByCategory(list){
   return out;
 }
 const grouped = groupByCategory(TRANSFORMS);
-const perCategoryDefault = 12; // initial show per category
+const perCategoryDefault = 12;
 const showCount = {};
 Object.keys(grouped).forEach(k => showCount[k] = perCategoryDefault);
 
@@ -341,7 +330,6 @@ function makeRow(transform, text){
 }
 
 function renderAll(text){
-  // clear previous category blocks
   document.querySelectorAll('.cat-block').forEach(n=>n.remove());
   const cats = Object.keys(grouped).sort();
   cats.forEach(cat => {
@@ -370,17 +358,15 @@ function renderAll(text){
   countLabel.textContent = TRANSFORMS.length;
 }
 
-/* initial render with default input */
+/* initial render */
 renderAll(inputText.value || 'PirateRuler');
 
 /* ---------- buttons ---------- */
 generateBtn.addEventListener('click', ()=> {
   const t = inputText.value || '';
   if(!t.trim()) return alert('Type some text first.');
-  // clear existing .cat-block nodes to re-render
   renderAll(t);
 });
-
 inputText.addEventListener('keydown', (e)=> { if(e.key === 'Enter') generateBtn.click(); });
 
 copyAllBtn.addEventListener('click', async ()=> {
@@ -419,17 +405,14 @@ document.querySelectorAll('.theme-item').forEach(it => it.addEventListener('clic
 }));
 (function(){ const t=localStorage.getItem('pr-fonts-theme')||'light'; if(t!=='light') document.documentElement.classList.add(t); themeBtn.textContent = (t.charAt(0).toUpperCase()+t.slice(1)) + ' ▾'; })();
 
-// Sidebar: hidden by default, toggled by menu button (desktop & mobile)
 hambBtn.addEventListener('click', ()=> {
   if(sidebar.style.display === 'block'){ sidebar.style.display='none'; sidebar.setAttribute('aria-hidden','true'); }
   else { sidebar.style.display='block'; sidebar.setAttribute('aria-hidden','false'); }
 });
 closeSidebar.addEventListener('click', ()=> { sidebar.style.display='none'; sidebar.setAttribute('aria-hidden','true'); });
 
-// hide theme list when clicking outside
 document.addEventListener('click', (e)=> { if(!document.getElementById('themeSelectWrap')?.contains(e.target)) themeList.style.display='none'; });
 
-/* ---------- done ---------- */
 </script>
 </body>
 </html>
