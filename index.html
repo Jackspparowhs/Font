@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Font Generator — PirateRuler</title>
+<meta name="description" content="Generate fancy text (40+ styles) client-side. Copy results instantly. No API required." />
+<meta name="theme-color" content="#f7fbff" />
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="14" width="64" height="64" fill="%236b7dff"/><text x="50%" y="50%" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="26" text-anchor="middle" alignment-baseline="central" fill="white">PR</text></svg>'>
+<style>
+  :root{
+    --bg:#f3f7fb; --card:#ffffff; --muted:#6b7480; --text:#0b2130;
+    --accent-start:#6b7dff; --accent-end:#0bb3ff; --radius:12px; --shadow:0 12px 40px rgba(3,12,30,0.12);
+  }
+  html.dark{--bg:#071225;--card:#071827;--muted:#9fb1cc;--text:#eef6ff;--accent-start:#5ab3ff;--accent-end:#6b7dff}
+  html.ocean{--bg:#e8f7fb;--card:#ffffff;--muted:#4f6b75;--text:#063242;--accent-start:#00c2d1;--accent-end:#2b9fff}
+  html.sunset{--bg:#fff6f8;--card:#fff;--muted:#7a6b77;--text:#2a1020;--accent-start:#ff7aa2;--accent-end:#ffb86b}
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--text);
+    background:linear-gradient(180deg,var(--bg),#e9f6ff);-webkit-font-smoothing:antialiased;
+  }
+  .container{max-width:1100px;margin:14px auto;padding:18px}
+  header.header{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:linear-gradient(90deg,rgba(107,125,255,0.06),rgba(11,179,255,0.02));box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent-start),var(--accent-end));display:flex;align-items:center;justify-content:center;color:white;font-weight:900}
+  .title{font-weight:900;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .by{font-size:12px;color:var(--muted)}
+
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .input{
+    flex:1;min-width:220px;padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);background:var(--card);box-shadow:var(--shadow);
+  }
+  .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:800}
+  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:white}
+
+  .themeWrap{position:relative}
+  .themeList{position:absolute;right:0;top:44px;background:var(--card);border-radius:10px;padding:8px;box-shadow:var(--shadow);display:none}
+  .themeList div{padding:8px;cursor:pointer;font-weight:700;color:var(--muted)}
+
+  .card{margin-top:18px;background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04)}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+  @media(max-width:980px){ .grid{grid-template-columns:1fr} .sidebar{position:static} .themeList{right:8px} }
+
+  .results{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .resultRow{display:flex;align-items:center;gap:8px;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);background:linear-gradient(90deg,rgba(255,255,255,0.02),rgba(255,255,255,0));min-height:54px}
+  .resultText{flex:1;word-break:break-word}
+  .resultMeta{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+  .sidebar{padding:12px;border-radius:12px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,0.96));box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04)}
+  .small{font-size:13px;color:var(--muted)}
+
+  footer{margin-top:18px;text-align:center;padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.96));box-shadow:var(--shadow)}
+  .visit{padding:10px 18px;border-radius:999px;background:linear-gradient(90deg,#ff7aa2 0%, #6b7dff 100%);color:#fff;font-weight:800;text-decoration:none;display:inline-block}
+
+  .topRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .copies{display:flex;gap:6px}
+  input[type="text"]{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06)}
+  .muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="header" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">PR</div>
+      <div>
+        <div class="title">Font Generator</div>
+        <div class="by">by PirateRuler.com — fancy text, client-side</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="themeWrap" id="themeWrap">
+        <button id="themeBtn" class="btn ghost">Light ▾</button>
+        <div class="themeList" id="themeList">
+          <div data-theme="light">Light</div>
+          <div data-theme="dark">Dark</div>
+          <div data-theme="ocean">Ocean</div>
+          <div data-theme="sunset">Sunset</div>
+        </div>
+      </div>
+      <button id="visitBtn" class="btn primary" title="Visit PirateRuler.com">Visit PirateRuler.com</button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <input id="srcInput" class="input" type="text" placeholder="Type text here... (supports emojis & all characters)" value="PirateRuler" />
+    <button id="genBtn" class="btn primary">Generate</button>
+    <button id="copyAll" class="btn ghost" title="Copy all results">Copy All</button>
+    <button id="downloadTxt" class="btn ghost">Download .txt</button>
+  </div>
+
+  <div class="card grid" style="align-items:start">
+    <main>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:900;font-size:18px">Results</div>
+        <div class="small muted">45 transforms — client-side, no API</div>
+      </div>
+
+      <div id="results" class="results" aria-live="polite">
+        <!-- results populated by JS -->
+      </div>
+    </main>
+
+    <aside class="sidebar" role="complementary">
+      <div style="font-weight:900;margin-bottom:8px">About PirateRuler</div>
+      <div class="small muted">PirateRuler builds small privacy-first web tools. This font generator runs entirely in your browser — no servers, no tracking.</div>
+
+      <div style="margin-top:12px;font-weight:800">How to use</div>
+      <ol style="margin:6px 0 0 18px;padding:0" class="small muted">
+        <li>Type your text in the input and click Generate.</li>
+        <li>Tap Copy on any row to copy that style.</li>
+        <li>Use Copy All to copy every style at once or Download to save as .txt.</li>
+      </ol>
+
+      <div style="margin-top:12px;font-weight:800">Shortcuts</div>
+      <div class="small muted">Press <strong>Enter</strong> to generate. Use keyboard for quick edits.</div>
+
+      <div style="margin-top:12px">
+        <a href="https://pirateruler.com" target="_blank" class="visit">Visit PirateRuler.com</a>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <small class="muted">© <span id="year"></span> PirateRuler</small>
+  </footer>
+</div>
+
+<script>
+/* --- Helpers: unicode transforms -------------------------------------------------- */
+/* mapGenerator builds maps from plain ASCII to transformed alphabets where possible.
+   For many common transforms we can compute via offsets; for others we use explicit lookup.
+*/
+const ASCII = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const yearEl = document.getElementById('year'); yearEl.textContent = new Date().getFullYear();
+
+/* helper: map characters by mapping string or offset info */
+function makeMap(replaceStr){ // replaceStr is sequence matching ASCII chars in order or object map
+  if(typeof replaceStr === 'string'){
+    const map = {};
+    for(let i=0;i<ASCII.length && i<replaceStr.length;i++){
+      map[ASCII[i]] = replaceStr[i] || ASCII[i];
+    }
+    return map;
+  } else return replaceStr;
+}
+function applyMap(s, map){
+  let out = '';
+  for(const ch of s){
+    out += (map[ch] !== undefined) ? map[ch] : ch;
+  }
+  return out;
+}
+
+/* Simple generator to create offset-based alphabets (works for contiguous Unicode ranges) */
+function offsetMap(offsetUpper, offsetLower){
+  const map = {};
+  for(let i=0;i<26;i++){
+    map[String.fromCharCode(65+i)] = String.fromCharCode(offsetUpper + i);
+    map[String.fromCharCode(97+i)] = String.fromCharCode(offsetLower + i);
+  }
+  return map;
+}
+
+/* Some specific maps (explicit) */
+const doubleStruck = makeMap(
+  // A-Z then a-z (if missing use plain)
+  "𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ" +
+  "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫" +
+  "0123456789"
+);
+
+const boldSans = makeMap("𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭" + "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇" + "0123456789");
+const boldSerif = makeMap("𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙" + "𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳" + "0123456789");
+const italic = makeMap("𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍" + "𝑎𝑏𝑐𝑑𝑒𝑓𝑔𝑕𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧");
+
+const monospace = makeMap("𝙰𝙱𝙲𝙳𝙴𝙵𝙶𝙷𝙸𝙹𝙺𝙻𝙼𝙽𝙾𝙿𝚀𝚁𝚂𝚃𝚄𝚅𝚆𝚇𝚈𝚉" + "𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣" + "0123456789");
+
+const circled = {}; // we convert letters to circled where available
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach((c,i)=> circled[c]=String.fromCharCode(0x24B6 + i));
+"abcdefghijklmnopqrstuvwxyz".split('').forEach((c,i)=> circled[c]=String.fromCharCode(0x24D0 + i));
+
+/* more explicit maps for decorative transforms */
+const bubble = makeMap("ⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ" + "ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ");
+const smallCaps = makeMap("ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀsᴛᴜᴠᴡxʏᴢ".padEnd(26,' ')); // only lowercase->smallcaps; fallback
+
+const fraktur = makeMap("𝔄𝔅ℭ𝔇𝔈𝔉𝔊ℌ𝔍𝔎𝔏𝔐𝔑𝔒𝔓𝔔ℜ𝔖𝔗𝔘𝔙𝔚𝔛𝔜ℨ" + "𝔞𝔟𝔠𝔡𝔢𝔣𝔤𝔥𝔦𝔧𝔨𝔩𝔪𝔫𝔬𝔭𝔮𝔯𝔰𝔱𝔲𝔳𝔴𝔵𝔶𝔷");
+const script = makeMap("𝒜𝒝𝒞𝒟𝒠𝒡𝒢𝒣𝒥𝒦𝒧𝒨𝒩𝒪𝒫𝒬𝑅𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵" + "𝒶𝒷𝒸𝒹𝑒𝒻𝑔𝒽𝒾𝒿𝓀𝓁𝓂𝓃𝑜𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏");
+const gothic = fraktur;
+const squared = makeMap("🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉" + "🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿"); // partial fallback
+
+/* A larger list of named transforms to present to the user.
+   Each transform has {id,name,fn} where fn(text) returns transformed text.
+*/
+const transforms = [
+  {id:'plain', name:'Plain', fn: s => s},
+  {id:'bold-sans', name:'Bold Sans', fn: s => applyMap(s, boldSans)},
+  {id:'bold-serif', name:'Bold Serif', fn: s => applyMap(s, boldSerif)},
+  {id:'italic', name:'Italic', fn: s => applyMap(s, italic)},
+  {id:'monospace', name:'Monospace', fn: s => applyMap(s, monospace)},
+  {id:'double', name:'Double-struck', fn: s => applyMap(s, doubleStruck)},
+  {id:'circled', name:'Circled', fn: s => applyMap(s, circled)},
+  {id:'bubble', name:'Bubble', fn: s => applyMap(s, bubble)},
+  {id:'smallcaps', name:'Small Caps (approx)', fn: s => {
+    // lowercase -> smallcaps best-effort
+    return s.split('').map(ch=>{
+      if(ch >= 'a' && ch <= 'z') return smallCaps[ch] || ch;
+      if(ch >= 'A' && ch <= 'Z') return ch.toLowerCase();
+      return ch;
+    }).join('');
+  }},
+  {id:'fraktur', name:'Fraktur', fn: s => applyMap(s, fraktur)},
+  {id:'script', name:'Script', fn: s => applyMap(s, script)},
+  {id:'gothic', name:'Gothic/Old', fn: s => applyMap(s, gothic)},
+  {id:'squared', name:'Squared', fn: s => applyMap(s, squared)},
+  /* creative variants using unicode combining marks or mappings */
+  {id:'upside', name:'Upside-down', fn: s => upsideDown(s)},
+  {id:'spaced', name:'Spaced letters', fn: s => s.split('').join(' ')},
+  {id:'reverse', name:'Reversed', fn: s => s.split('').reverse().join('')},
+  {id:'wide', name:'Wide (fullwidth)', fn: s => fullWidth(s)},
+  {id:'tiny', name:'Tiny / superscript-like', fn: s => superscriptify(s)},
+  {id:'serif-small', name:'Serif small', fn: s => applyMap(s, boldSerif)},
+  {id:'italic-script', name:'Italic Script', fn: s => applyMap(s, script)},
+  {id:'fancy1', name:'Fancy ①', fn: s => decorate(s,'~*','*~')},
+  {id:'fancy2', name:'Fancy ②', fn: s => decorate(s,'✧ ',' ✧')},
+  {id:'zalgo', name:'Zalgo (glitch)', fn: s => zalgo(s)},
+  {id:'binary', name:'Binary (UTF-8 bytes)', fn: s => toBinary(s)},
+  {id:'hex', name:'Hex (UTF-8 bytes)', fn: s => toHex(s)},
+  {id:'mirror', name:'Mirror (approx)', fn: s => mirror(s)},
+  {id:'dots', name:'Dotted', fn: s => s.split('').map(c=>c+'̇').join('')},
+  {id:'strike', name:'Strikethrough', fn: s => s.split('').map(c=>c+'̶').join('')},
+  {id:'underline', name:'Underlined', fn: s => s.split('').map(c=>c+'̲').join('')},
+  {id:'wavy', name:'Wavy', fn: s => s.split('').map(c=>c+'͡').join('')},
+  {id:'star', name:'Star surround', fn: s => '✪ '+s+' ✪'},
+  {id:'brackets', name:'Bracketed', fn: s => '['+s+']'},
+  {id:'parenthesis', name:'(Parenthesis)', fn: s => '('+s+')'},
+  {id:'angle', name:'‹ ›', fn: s => '‹'+s+'›'},
+  {id:'dotswrap', name:'• '+ ' •', fn: s => '•' + s + '•'},
+  {id:'boxed', name:'Boxed (fallback)', fn: s => '[ ' + s + ' ]'},
+  {id:'smallcaps2', name:'Small-caps 2', fn: s => s.toUpperCase()},
+  {id:'lowercase', name:'lowercase', fn: s => s.toLowerCase()},
+  {id:'uppercase', name:'UPPERCASE', fn: s => s.toUpperCase()},
+  {id:'emoji', name:'Emoji style', fn: s => emojiify(s)},
+  {id:'dot-matrix', name:'Dot-matrix', fn: s => s.split('').map(c=>'░'+c+'░').join('')},
+  {id:'accent', name:'Accented', fn: s => accentify(s)},
+  {id:'parentheses-full', name:'❨ ❩', fn: s => '❨'+s+'❩'},
+  {id:'star-box', name:'✦ Box', fn: s => '✦ ' + s + ' ✦' },
+  {id:'sparkle', name:'✨ Sparkle', fn: s => '✨ '+s+' ✨' },
+  {id:'boxed2', name:'🄫 Style', fn: s => '🄫 ' + s },
+  {id:'altbubble', name:'ⓑⓤⓑⓑⓛⓔ', fn: s => applyMap(s, makeMap("ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩ".toUpperCase()+ "ⓐⓑⓒ..."))}, // fallback
+  {id:'faux', name:'Faux Fancy', fn: s => fauxFancy(s)}
+];
+
+/* ---- Utility transform implementations ---- */
+
+function decorate(s, left='', right='') { return left + s + right; }
+
+/* upside/down: a small mapping for common letters (not perfect) */
+const upsideMap = {
+  'a':'ɐ','b':'q','c':'ɔ','d':'p','e':'ǝ','f':'ɟ','g':'ɓ','h':'ɥ','i':'ı','j':'ɾ','k':'ʞ','l':'ʃ','m':'ɯ',
+  'n':'u','o':'o','p':'d','q':'b','r':'ɹ','s':'s','t':'ɯ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z',
+  'A':'∀','B':'𐐒','C':'Ɔ','D':'◖','E':'Ǝ','F':'Ⅎ','G':'⅁','H':'H','I':'I','J':'ſ','K':'⋊','L':'⅂','M':'W',
+  'N':'N','O':'O','P':'Ԁ','Q':'Q','R':'ᴚ','S':'S','T':'┴','U':'∩','V':'Λ','W':'M','X':'X','Y':'⅄','Z':'Z',
+  '?':'¿','!':'¡','."':'",',',':':'
+};
+function upsideDown(s){
+  const arr = Array.from(s).map(ch => upsideMap[ch] !== undefined ? upsideMap[ch] : ch);
+  return arr.reverse().join('');
+}
+
+/* fullwidth conversion */
+function fullWidth(s){
+  return s.split('').map(ch=>{
+    const code = ch.charCodeAt(0);
+    if(code >= 33 && code <= 126) return String.fromCharCode(0xFF00 + code - 0x20);
+    return ch;
+  }).join('');
+}
+
+/* superscript mapping (approx) */
+const superMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹',
+  'a':'ᵃ','b':'ᵇ','c':'ᶜ','d':'ᵈ','e':'ᵉ','f':'ᶠ','g':'ᵍ','h':'ʰ','i':'ⁱ','j':'ʲ','k':'ᵏ','l':'ˡ','m':'ᵐ',
+  'n':'ⁿ','o':'ᵒ','p':'ᵖ','q':'ᵠ','r':'ʳ','s':'ˢ','t':'ᵗ','u':'ᵘ','v':'ᵛ','w':'ʷ','x':'ˣ','y':'ʸ','z':'ᶻ'};
+function superscriptify(s){ return s.split('').map(ch => superMap[ch] || ch).join(''); }
+
+/* zalgo (simple) */
+const zalgoComb = ['\u030d','\u030e','\u0321','\u0322','\u0327','\u0328','\u0334','\u0335','\u0336','\u034f','\u035c','\u035d','\u0363'];
+function zalgo(s){
+  return s.split('').map(ch=>{
+    let out=ch;
+    const count = Math.floor(Math.random()*5);
+    for(let i=0;i<count;i++) out += zalgoComb[Math.floor(Math.random()*zalgoComb.length)];
+    return out;
+  }).join('');
+}
+
+/* binary / hex (UTF-8) */
+function toBinary(str){
+  return new TextEncoder().encode(str).reduce((acc,b)=> acc + b.toString(2).padStart(8,'0') + ' ', '').trim();
+}
+function toHex(str){
+  return new TextEncoder().encode(str).reduce((acc,b)=> acc + b.toString(16).padStart(2,'0') + ' ', '').trim();
+}
+
+/* mirror: replace with mirrored glyphs where available (approx) */
+const mirrorMap = {'b':'d','d':'b','p':'q','q':'p','/':'\\','\\':'/','(' : ')', ')':'(','[':']',']':'[','{':'}','}':'{'};
+function mirror(s){ return s.split('').map(ch => mirrorMap[ch] || ch).reverse().join(''); }
+
+/* emojiify (simple: wrap with emoji or replace letters with emoji approximations) */
+function emojiify(s){
+  const map = {a:'🅰️',b:'🅱️',c:'🌜',d:'🌛',e:'📧',f:'🎏',g:'🌀',h:'♓',i:'ℹ️',j:'🎷',k:'🔱',l:'👢',m:'〽️',n:'🎵',o:'⚪',p:'🅿️',q:'🍳',r:'®️',s:'⚡',t:'✝️',u:'⛎',v:'✅',w:'〰️',x:'❌',y:'✌️',z:'💤'};
+  return s.split('').map(ch => {
+    const c = ch.toLowerCase();
+    return map[c] ? map[c] : ch;
+  }).join(' ');
+}
+
+/* accentify: add accent marks to letters (best-effort) */
+function accentify(s){
+  return s.normalize('NFD').split('').map(ch => ch + (Math.random() > 0.7 ? '\u0301' : '')).join('');
+}
+
+/* fauxFancy: combine uppercase + spaced + symbols for fun */
+function fauxFancy(s){
+  return s.toUpperCase().split('').map(c=>'⟦'+c+'⟧').join(' ');
+}
+
+/* copy to clipboard helper */
+async function copyToClipboard(text){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); ta.remove();
+    }
+    return true;
+  }catch(e){ console.warn('copy failed', e); return false; }
+}
+
+/* UI wiring */
+const srcInput = document.getElementById('srcInput');
+const genBtn = document.getElementById('genBtn');
+const resultsWrap = document.getElementById('results');
+const copyAllBtn = document.getElementById('copyAll');
+const downloadTxtBtn = document.getElementById('downloadTxt');
+const themeBtn = document.getElementById('themeBtn');
+const themeList = document.getElementById('themeList');
+
+function renderResultsFor(text){
+  resultsWrap.innerHTML = '';
+  transforms.forEach(t => {
+    try{
+      const out = t.fn(String(text));
+      const row = document.createElement('div');
+      row.className = 'resultRow';
+      const left = document.createElement('div');
+      left.style.flex = '1';
+      const meta = document.createElement('div');
+      meta.className = 'resultMeta';
+      meta.textContent = t.name;
+      const txt = document.createElement('div');
+      txt.className = 'resultText';
+      txt.innerText = out || '—';
+      left.appendChild(meta);
+      left.appendChild(txt);
+
+      const copies = document.createElement('div');
+      copies.className = 'copies';
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'btn ghost';
+      copyBtn.textContent = 'Copy';
+      copyBtn.addEventListener('click', async ()=>{
+        const ok = await copyToClipboard(out);
+        copyBtn.textContent = ok ? 'Copied' : 'Copy';
+        setTimeout(()=> copyBtn.textContent = 'Copy', 1400);
+      });
+      const useBtn = document.createElement('button');
+      useBtn.className = 'btn';
+      useBtn.textContent = 'Use';
+      useBtn.title = 'Use this text back into input';
+      useBtn.addEventListener('click', ()=> { srcInput.value = out; srcInput.focus(); });
+
+      copies.appendChild(copyBtn);
+      copies.appendChild(useBtn);
+
+      row.appendChild(left);
+      row.appendChild(copies);
+      resultsWrap.appendChild(row);
+    }catch(e){
+      console.warn('transform error', t, e);
+    }
+  });
+}
+
+/* initial render */
+renderResultsFor(srcInput.value);
+
+/* event handlers */
+genBtn.addEventListener('click', ()=> renderResultsFor(srcInput.value));
+srcInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter'){ e.preventDefault(); renderResultsFor(srcInput.value); } });
+
+copyAllBtn.addEventListener('click', async ()=>{
+  // join each style on new line with label
+  const lines = transforms.map(t => `${t.name}: ${t.fn(String(srcInput.value))}`);
+  const txt = lines.join('\n');
+  const ok = await copyToClipboard(txt);
+  copyAllBtn.textContent = ok ? 'Copied all' : 'Copy All';
+  setTimeout(()=> copyAllBtn.textContent = 'Copy All', 1400);
+});
+
+downloadTxtBtn.addEventListener('click', ()=>{
+  const lines = transforms.map(t => `${t.name}: ${t.fn(String(srcInput.value))}`);
+  const blob = new Blob([lines.join('\n')], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pirateruler-fonts.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+/* theme UI */
+document.getElementById('themeBtn').addEventListener('click', ()=> {
+  themeList.style.display = themeList.style.display === 'block' ? 'none' : 'block';
+});
+Array.from(themeList.children).forEach(child => {
+  child.addEventListener('click', ()=> {
+    const t = child.dataset.theme;
+    ['dark','ocean','sunset'].forEach(c => document.documentElement.classList.remove(c));
+    if(t !== 'light') document.documentElement.classList.add(t);
+    document.getElementById('themeBtn').textContent = (t.charAt(0).toUpperCase()+t.slice(1)) + ' ▾';
+    themeList.style.display='none';
+    localStorage.setItem('pr-font-theme', t);
+  });
+});
+(function initTheme(){
+  const t = localStorage.getItem('pr-font-theme') || 'light';
+  if(t !== 'light') document.documentElement.classList.add(t);
+  document.getElementById('themeBtn').textContent = (t.charAt(0).toUpperCase()+t.slice(1)) + ' ▾';
+})();
+
+/* visit button */
+document.getElementById('visitBtn').addEventListener('click', ()=> window.open('https://pirateruler.com','_blank'));
+
+/* accessibility: close theme list on click outside */
+document.addEventListener('click', (e)=> {
+  if(!document.getElementById('themeWrap')?.contains(e.target)) themeList.style.display = 'none';
+});
+
+/* hint: generate on load */
+window.addEventListener('load', ()=> renderResultsFor(srcInput.value));
+</script>
+</body>
+</html>
