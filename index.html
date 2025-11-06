@@ -4,463 +4,432 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Font Generator — PirateRuler</title>
-<meta name="description" content="Font Generator by PirateRuler — client-side transforms, copy & download. No API." />
+<meta name="description" content="Font Generator by PirateRuler — fancy text transforms client-side. No API." />
 <meta name="theme-color" content="#f7fbff" />
+<link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect rx="14" width="64" height="64" fill="%236b7dff"/><text x="50%" y="50%" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="26" text-anchor="middle" alignment-baseline="central" fill="white">PR</text></svg>'>
 <style>
   :root{
-    --bg:#f3f7fb; --card:#fff; --muted:#6b7480; --text:#0b2130;
-    --accent-start:#6b7dff; --accent-end:#0bb3ff; --radius:12px;
-    --shadow: 0 12px 30px rgba(3,12,30,0.12);
+    --bg:#f3f7fb; --card:#ffffff; --muted:#6b7480; --text:#0b2130;
+    --accent-start:#6b7dff; --accent-end:#0bb3ff;
+    --glass: rgba(11,17,28,0.04);
+    --radius:14px; --shadow-lg: 0 18px 50px rgba(3,12,30,0.18);
+    --shadow-sm: 0 8px 24px rgba(3,12,30,0.08);
   }
-  html.dark{--bg:#071225;--card:#071827;--muted:#98a7bf;--text:#e9f1ff;--accent-start:#5ab3ff;--accent-end:#6b7dff}
+  html.dark{ --bg:#071225; --card:#071827; --muted:#98a7bf; --text:#e9f1ff; --accent-start:#5ab3ff; --accent-end:#6b7dff; --glass: rgba(255,255,255,0.02); --shadow-lg: 0 18px 50px rgba(0,0,0,0.6); --shadow-sm: 0 8px 24px rgba(0,0,0,0.45); }
+  html.ocean{ --bg:#e8f7fb; --card:#fff; --muted:#4f6b75; --text:#063242; --accent-start:#00c2d1; --accent-end:#2b9fff; }
+  html.sunset{ --bg:#fff6f8; --card:#fff; --muted:#7a6b77; --text:#2a1020; --accent-start:#ff7aa2; --accent-end:#ffb86b; }
+
   *{box-sizing:border-box}
-  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#e9f6ff);color:var(--text);-webkit-font-smoothing:antialiased}
-  .wrap{max-width:980px;margin:18px auto;padding:14px}
-  header{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(107,125,255,0.06), rgba(11,179,255,0.02));box-shadow:var(--shadow)}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--text);background:linear-gradient(180deg,var(--bg),#e9f6ff);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1100px;margin:14px auto;padding:14px}
+
+  header.header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(107,125,255,0.06), rgba(11,179,255,0.02));box-shadow:var(--shadow-sm)}
+  .brand{display:flex;gap:12px;align-items:center;min-width:0}
   .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent-start),var(--accent-end));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900}
-  .title{font-weight:900}
-  .by{font-size:13px;color:var(--muted)}
-  .header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-  .btn{padding:8px 12px;border-radius:999px;border:none;background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;font-weight:800;cursor:pointer}
-  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06);color:var(--text)}
-  .btn.glow{box-shadow:0 6px 20px rgba(107,125,255,0.18);}
+  .brand-title .title-strong{font-size:18px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brand-title .by{font-size:12px;color:var(--muted);margin-top:2px}
 
-  .hero{margin-top:14px;padding:18px;border-radius:14px;background:var(--card);box-shadow:var(--shadow)}
-  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
-  input[type="text"]{padding:12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);width:100%;min-width:260px}
-  .small-ghost{padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:transparent;cursor:pointer}
+  .header-actions{display:flex;align-items:center;gap:8px}
+  .btn{padding:8px 10px;border-radius:10px;border:none;cursor:pointer;font-weight:800;background:transparent}
+  .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+  .btn.theme{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;border-radius:999px;padding:8px 12px;box-shadow:0 6px 18px rgba(107,125,255,0.12)}
+  .btn.theme.glow{box-shadow:0 10px 30px rgba(107,125,255,0.28), 0 0 20px rgba(107,125,255,0.12) inset}
+  .hamb{width:46px;height:46px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(0,0,0,0.04)}
 
-  .row{display:flex;gap:10px;align-items:center}
-  .main{display:grid;grid-template-columns:1fr 320px;gap:16px;margin-top:14px}
-  @media(max-width:980px){ .main{grid-template-columns:1fr} }
-  .card{background:var(--card);padding:12px;border-radius:12px;box-shadow:var(--shadow)}
-  .results{margin-top:10px}
-  .res-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);margin-bottom:8px;background:linear-gradient(180deg,rgba(255,255,255,0.98),rgba(255,255,255,0.96))}
-  .res-left{flex:1;overflow:hidden}
-  .res-left .label{font-weight:800}
-  .res-left .sub{color:var(--muted);font-size:13px;margin-top:6px}
-  .res-actions{display:flex;gap:8px;margin-left:12px}
-  .pill{padding:8px 12px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
-  .pill.secondary{background:transparent}
-  .meta{display:flex;gap:8px;align-items:center;margin-bottom:8px;color:var(--muted)}
+  .hero{margin-top:16px;padding:18px;border-radius:14px;background:var(--card);box-shadow:var(--shadow-lg);border:1px solid rgba(0,0,0,0.04)}
+  .hero .title{font-size:22px;font-weight:900;margin:0}
+  .hero .hint{color:var(--muted);margin-top:6px}
 
-  /* sidebar */
-  .sidebar{position:sticky;top:18px}
-  .cats{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-  .cat-btn{padding:8px 10px;border-radius:999px;border:1px solid rgba(0,0,0,0.06);background:transparent;cursor:pointer}
-  .cat-btn.active{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:#fff;box-shadow:0 8px 24px rgba(11,107,255,0.12)}
+  .controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+  .input{flex:1;min-width:180px}
+  input[type="text"]{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);font-size:16px;background:var(--card);color:var(--text)}
+  .primary{background:linear-gradient(90deg,var(--accent-start),var(--accent-end));color:white;padding:10px 16px;border-radius:10px;border:none;font-weight:800;cursor:pointer}
 
-  footer{margin-top:18px;padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.96));text-align:center;box-shadow:var(--shadow)}
+  .small-actions{display:flex;gap:8px;align-items:center;margin-left:8px}
+
+  .results{margin-top:18px}
+  .results-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,0.04);margin-top:12px}
+  .result-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.6), transparent)}
+  .result-left{flex:1;min-width:0}
+  .result-title{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .result-sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .result-actions{display:flex;gap:8px}
+  .btn.copy{padding:8px 12px;border-radius:10px;background:#fff;border:1px solid rgba(0,0,0,0.06);cursor:pointer;font-weight:700}
+  .btn.use{padding:8px 12px;border-radius:10px;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.04);cursor:pointer;font-weight:700}
+
+  .category-title{font-weight:900;margin:6px 0 12px 0}
+  .load-more{display:block;margin:8px auto;padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:transparent;cursor:pointer;font-weight:800}
+
+  .sidebar{position:fixed;right:18px;top:90px;width:320px;background:var(--card);border-radius:12px;padding:12px;box-shadow:var(--shadow-lg);border:1px solid rgba(0,0,0,0.06);display:none}
+  .sidebar h3{margin:0 0 8px 0}
+  .sidebar a{display:block;padding:8px;border-radius:8px;color:var(--text);text-decoration:none}
   .muted{color:var(--muted)}
-  .load-more{display:block;margin:10px auto;padding:10px 14px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);background:transparent;cursor:pointer}
 
-  .search-row{display:flex;gap:8px;align-items:center}
-  .top-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-  .info{font-size:13px;color:var(--muted)}
+  footer{margin-top:18px;padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.96));text-align:center;box-shadow:var(--shadow-lg)}
+
+  @media(max-width:980px){
+    .sidebar{position:static;width:auto;margin-top:12px}
+  }
+  @media(max-width:520px){
+    .logo{width:48px;height:48px}
+    .brand-title .title-strong{font-size:16px}
+    .controls{flex-direction:column;align-items:stretch}
+    .result-actions{flex-direction:row-reverse}
+    .result-title{font-size:16px}
+  }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="logo">PR</div>
-        <div>
-          <div class="title">Font Generator</div>
-          <div class="by">by PirateRuler.com — client-side transforms</div>
-        </div>
+<div class="container">
+  <header class="header" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">PR</div>
+      <div class="brand-title">
+        <div class="title-strong">Font Generator</div>
+        <div class="by">by PirateRuler.com</div>
       </div>
-
-      <div class="header-actions">
-        <button id="themeBtn" class="btn ghost">Light ▾</button>
-        <button id="sidebarToggle" class="btn ghost">Menu</button>
-      </div>
-    </header>
-
-    <section class="hero card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-        <div style="flex:1;min-width:220px">
-          <h2 style="margin:0">Font Generator</h2>
-          <p class="muted" style="margin:6px 0 0 0">Type text below and get stylized versions you can copy — 100% client-side, no API.</p>
-        </div>
-        <div style="min-width:220px;text-align:right">
-          <div class="small-ghost info" id="countInfo">— transforms loaded</div>
-        </div>
-      </div>
-
-      <div class="controls" style="margin-top:12px">
-        <div style="flex:1">
-          <input id="userText" type="text" placeholder="Type something to start..." value="PirateRuler" />
-        </div>
-        <button id="generate" class="btn glow">Generate</button>
-        <button id="copyAll" class="btn ghost">Copy All</button>
-        <button id="downloadTxt" class="btn ghost">Download .txt</button>
-      </div>
-
-      <div class="top-meta" style="margin-top:10px">
-        <div class="meta"><strong id="resultCount">0</strong> results — client-side transforms</div>
-        <div class="info">Tip: click <em>Use</em> to place transform in input, <em>Copy</em> to copy.</div>
-      </div>
-    </section>
-
-    <div class="main">
-      <main>
-        <div id="resultsArea" class="card">
-          <div id="results" class="results"></div>
-        </div>
-      </main>
-
-      <aside class="sidebar">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div style="font-weight:800">Categories</div>
-            <div><button id="showAllCats" class="pill secondary">All</button></div>
-          </div>
-
-          <div class="cats" id="catList" style="margin-top:10px"></div>
-
-          <div style="margin-top:12px">
-            <div style="font-weight:800;margin-bottom:6px">How to use</div>
-            <ol style="margin:0;padding-left:18px;color:var(--muted)">
-              <li>Type your text and click Generate.</li>
-              <li>Tap Copy to copy, Use to paste back into input.</li>
-              <li>Download .txt or Copy All to get every transform.</li>
-            </ol>
-          </div>
-
-          <div style="margin-top:12px;font-size:13px;color:var(--muted)">
-            <div style="font-weight:800;margin-bottom:6px">About</div>
-            PirateRuler Font Generator — offline, client-side transforms. Add more fonts by editing the script.
-          </div>
-        </div>
-      </aside>
     </div>
 
-    <footer>
-      <div><a class="muted" href="https://pirateruler.com" target="_blank" rel="noopener noreferrer">Visit PirateRuler.com</a></div>
-      <div style="height:6px"></div>
-      <small class="muted">© <span id="year"></span> PirateRuler</small>
-    </footer>
+    <div class="header-actions" role="navigation">
+      <div class="theme-select" id="themeSelectWrap">
+        <button id="themeBtn" class="btn theme glow" title="Theme">Light ▾</button>
+        <div id="themeList" style="display:none;position:absolute;right:18px;top:72px;background:var(--card);border-radius:10px;padding:8px;box-shadow:var(--shadow-sm);z-index:1000;">
+          <div class="theme-item" data-theme="light" style="padding:8px;cursor:pointer">Light</div>
+          <div class="theme-item" data-theme="dark" style="padding:8px;cursor:pointer">Dark</div>
+          <div class="theme-item" data-theme="ocean" style="padding:8px;cursor:pointer">Ocean</div>
+          <div class="theme-item" data-theme="sunset" style="padding:8px;cursor:pointer">Sunset</div>
+        </div>
+      </div>
+      <div id="hambBtn" class="hamb" title="Open menu" aria-haspopup="true" aria-controls="sidebar">☰</div>
+    </div>
+  </header>
+
+  <section class="hero" aria-labelledby="heroTitle">
+    <h1 id="heroTitle" class="title">Font Generator</h1>
+    <div class="hint">Type text below and get stylized versions you can copy — client-side, no API.</div>
+    <div class="controls">
+      <div class="input">
+        <input id="inputText" type="text" placeholder="Type something to transform — e.g. PirateRuler" value="PirateRuler" />
+      </div>
+      <button id="generateBtn" class="primary">Generate</button>
+
+      <div class="small-actions">
+        <button id="copyAllBtn" class="btn ghost">Copy All</button>
+        <button id="downloadBtn" class="btn ghost">Download .txt</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="results" id="results">
+    <div class="results-header">
+      <div><strong id="countLabel">0</strong> results</div>
+      <div class="muted">Client-side transforms — no API</div>
+    </div>
+    <!-- categories + transforms injected here by JS -->
   </div>
 
+  <aside class="sidebar" id="sidebar" aria-hidden="true">
+    <div style="display:flex;justify-content:flex-end"><button id="closeSidebar" class="btn ghost">Close</button></div>
+    <h3>PirateRuler Links</h3>
+    <nav style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+      <a href="/post/about.html" target="_blank" rel="noopener noreferrer">About — PirateRuler</a>
+      <a href="/post/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+      <a href="/post/contact.html" target="_blank" rel="noopener noreferrer">Contact</a>
+      <a href="/post/terms.html" target="_blank" rel="noopener noreferrer">Terms & Service</a>
+    </nav>
+    <div style="margin-top:18px;color:var(--muted);font-size:13px">
+      If this site is offline you can visit PirateRuler for backups & resources: <a href="https://pirateruler.com" target="_blank">pirateruler.com</a>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted)"><strong>How to use</strong>
+      <ol style="margin:6px 0 0 18px">
+        <li>Type your text and press Generate (or Enter).</li>
+        <li>Tap <em>Use</em> to place the transformed text back into input.</li>
+        <li>Tap <em>Copy</em> to copy a transform or use Copy All / Download .txt.</li>
+      </ol>
+    </div>
+  </aside>
+
+  <footer>
+    <div style="margin-bottom:8px">About PirateRuler Fonts — lightweight client-side font transforms for social captions, bios, and quick mockups.</div>
+    <a class="visit" href="https://pirateruler.com" target="_blank" rel="noopener noreferrer">Visit PirateRuler.com</a>
+    <div style="height:8px"></div>
+    <small class="muted">© <span id="year"></span> PirateRuler</small>
+  </footer>
+</div>
+
 <script>
-/* Font Generator — client-side transforms
-   - Categories, Load more per category
-   - Copy/Use/Download/Copy All
-   - No API
-*/
+/* ---------- Utilities ---------- */
+const $ = id => document.getElementById(id);
+const inputText = $('inputText'), generateBtn = $('generateBtn'), results = $('results');
+const copyAllBtn = $('copyAllBtn'), downloadBtn = $('downloadBtn'), countLabel = $('countLabel');
+const themeBtn = $('themeBtn'), themeList = document.getElementById('themeList');
+const sidebar = $('sidebar'), hambBtn = $('hambBtn'), closeSidebar = $('closeSidebar');
+$('year').textContent = new Date().getFullYear();
 
-/* ---------- helper functions ---------- */
-const el = id => document.getElementById(id);
 function copyText(text){
-  if(!navigator.clipboard) {
-    // fallback
-    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); alert('Copied'); } catch(e){ alert('Copy failed'); }
-    ta.remove(); return;
-  }
-  navigator.clipboard.writeText(text).then(()=> showToast('Copied to clipboard')).catch(()=> alert('Copy failed'));
+  if(!navigator.clipboard){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); return; }
+  return navigator.clipboard.writeText(text);
 }
-function showToast(msg){ /* lightweight */ console.log(msg); }
-
-/* ---------- transformation data ---------- */
-/* Each transform: { name, category, fn (s->t), sample } */
-const transforms = [];
-
-/* helper to map ascii letters using an offset base (for many unicode alphabets) */
-function mapAlpha(str, lowerBase, upperBase){
-  // lowerBase/upperBase are character code points for 'a' and 'A'
-  return str.split('').map(ch=>{
-    const code = ch.charCodeAt(0);
-    if(code >= 97 && code <= 122){ // a-z
-      const idx = code - 97; return String.fromCodePoint(lowerBase + idx);
-    }
-    if(code >= 65 && code <= 90){
-      const idx = code - 65; return String.fromCodePoint(upperBase + idx);
-    }
-    return ch;
-  }).join('');
+function downloadText(name, text){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'})); a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+function showToast(msg){
+  const t=document.createElement('div'); t.textContent=msg; t.style.position='fixed'; t.style.bottom='18px'; t.style.left='50%'; t.style.transform='translateX(-50%)'; t.style.padding='8px 12px'; t.style.borderRadius='10px'; t.style.background='rgba(0,0,0,0.75)'; t.style.color='white'; t.style.zIndex=99999; document.body.appendChild(t); setTimeout(()=>t.remove(),900);
 }
 
-/* create mapping-based transform (mapOf char->char) */
-function mapWithMap(str, mapObj){
-  return str.split('').map(ch=> mapObj[ch] || ch ).join('');
+/* ---------- small mapping helpers ---------- */
+function mapWithTable(s, table){
+  return Array.from(s).map(c => table[c] ?? table[c.toLowerCase()] ?? c).join('');
+}
+function joinSep(s, sep){ return Array.from(s).join(sep); }
+
+/* small mapping tables */
+const SMALL_CAPS = { a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'s',t:'ᴛ',u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ'};
+const UPSIDE = { a:'ɐ',b:'q',c:'ɔ',d:'p',e:'ǝ',f:'ɟ',g:'ɓ',h:'ɥ',i:'ᴉ',j:'ɾ',k:'ʞ',l:'ʃ',m:'ɯ',n:'u',o:'o',p:'d',q:'b',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z',
+  '.':'˙','?':'¿','!':'¡','\'':',','"':',,','(':')',')':'(','[':']',']':'[','<':'>','>':'<'};
+const MIRROR = { a:'ɒ', b:'q', c:'ɔ', d:'p', e:'ɘ', f:'ɟ', g:'ɓ', h:'ɥ', i:'ı', j:'ɾ', k:'ʞ', l:'l', m:'ɯ', n:'u', o:'o', p:'d', q:'b', r:'ɿ', s:'s', t:'ʇ', u:'n', v:'ʌ', w:'ʍ', x:'x', y:'ʎ', z:'z' };
+const CIRCLE = (function(){ const m={}; for(let i=0;i<26;i++){ m[String.fromCharCode(65+i)]=String.fromCharCode(0x24B6+i); m[String.fromCharCode(97+i)]=String.fromCharCode(0x24D0+i);} for(let i=0;i<10;i++){ m[String(i)]=["⓪","①","②","③","④","⑤","⑥","⑦","⑧","⑨"][i]; } return m; })();
+const BUBBLE = CIRCLE; // reuse circled as bubble
+const FULLWIDTH = (function(){ const m={}; for(let i=0;i<26;i++){ m[String.fromCharCode(65+i)]=String.fromCharCode(0xFF21+i); m[String.fromCharCode(97+i)]=String.fromCharCode(0xFF41+i);} for(let i=0;i<10;i++) m[String(i)]=String.fromCharCode(0xFF10+i); return m; })();
+
+/* combining diacritics for accenting */
+const COMBINING = ['\u0300','\u0301','\u0302','\u0303','\u0304','\u0306','\u0307','\u0308','\u0327','\u0323'];
+
+/* ---------- base transforms ---------- */
+/* lightweight base transforms (we will auto-combine to hit 150+) */
+const BASE_TRANSFORMS = [
+  {id:'plain', name:'Plain', cat:'Basic', fn: s => s},
+  {id:'upper', name:'UPPERCASE', cat:'Basic', fn: s => s.toUpperCase()},
+  {id:'lower', name:'lowercase', cat:'Basic', fn: s => s.toLowerCase()},
+  {id:'title', name:'Title Case', cat:'Basic', fn: s => s.replace(/\w\S*/g, w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase())},
+  {id:'smallcaps', name:'Small Caps', cat:'Case', fn: s => mapWithTable(s.toLowerCase(), SMALL_CAPS)},
+  {id:'spaced', name:'Spaced letters', cat:'Spacing', fn: s => joinSep(s,' ')},
+  {id:'dotted', name:'Dotted', cat:'Spacing', fn: s => joinSep(s,'·')},
+  {id:'fullwidth', name:'Fullwidth', cat:'Symbols', fn: s => mapWithTable(s, FULLWIDTH)},
+  {id:'circled', name:'Circled', cat:'Fancy', fn: s => mapWithTable(s, CIRCLE)},
+  {id:'bubble', name:'Bubble', cat:'Fancy', fn: s => mapWithTable(s, BUBBLE)},
+  {id:'upsidedown', name:'Upside Down', cat:'Fun', fn: s => Array.from(s).reverse().map(c=>UPSIDE[c.toLowerCase()]||UPSIDE[c]||c).join('')},
+  {id:'mirror', name:'Mirror-ish', cat:'Fun', fn: s => mapWithTable(s, MIRROR)},
+  {id:'brackets', name:'[brackets]', cat:'Wrappers', fn: s => Array.from(s).map(c=>'['+c+']').join('')},
+  {id:'parenthesis', name:'(parenthesis)', cat:'Wrappers', fn: s => Array.from(s).map(c=>'('+c+')').join('')},
+  {id:'boxed', name:'▣ Boxes', cat:'Wrappers', fn: s => Array.from(s).map(c=>'▣'+c+'▣').join('')},
+  {id:'accent', name:'Combining Accents', cat:'Accents', fn: s => Array.from(s).map(c=> c + COMBINING[Math.floor(Math.random()*COMBINING.length)]).join('')},
+  {id:'dotsAbove', name:'Dots Above', cat:'Accents', fn: s => Array.from(s).map(c=> c + '\u0307').join('')},
+  {id:'reverse', name:'Reversed', cat:'Misc', fn: s => Array.from(s).reverse().join('')},
+  {id:'fullspace', name:'Full Spaced', cat:'Spacing', fn: s => Array.from(s).map(c=> c + '\u200A').join('')},
+  {id:'tiny', name:'Tiny (sub-like)', cat:'Symbols', fn: s => mapWithTable(s, {a:'ₐ',e:'ₑ',i:'ᵢ',o:'ₒ',u:'ᵤ',r:'ᵣ',t:'ₜ',s:'ₛ',n:'ₙ'})},
+  {id:'braille', name:'Braille-ish', cat:'Fun', fn: s => Array.from(s).map(c=> String.fromCodePoint(0x2800 + (c.charCodeAt(0) % 256))).join('')},
+];
+
+/* ---------- auto-generate many transforms by composing decorators ---------- */
+function compose(fn1, fn2){
+  return s => fn2(fn1(s));
 }
 
-/* build many transforms (common unicode alphabets) */
+/* decorator helpers */
+const DECORATORS = [
+  {id:'spaced', name:' Spaced', fn: s => joinSep(s,' ')},
+  {id:'dot', name:' ·dotted', fn: s => joinSep(s,'·')},
+  {id:'circ', name:' (circled)', fn: s => mapWithTable(s, CIRCLE)},
+  {id:'bubble', name:' (bubble)', fn: s => mapWithTable(s, BUBBLE)},
+  {id:'fullw', name:' (fullwidth)', fn: s => mapWithTable(s, FULLWIDTH)},
+  {id:'accent', name:' (accented)', fn: s => Array.from(s).map(c=>c + COMBINING[Math.floor(Math.random()*COMBINING.length)]).join('')},
+  {id:'paren', name:' (parenthesis)', fn: s => Array.from(s).map(c=>'('+c+')').join('')},
+  {id:'brack', name:' (brackets)', fn: s => Array.from(s).map(c=>'['+c+']').join('')},
+  {id:'up', name:' (upside)', fn: s => Array.from(s).reverse().map(c=>UPSIDE[c.toLowerCase()]||UPSIDE[c]||c).join('')},
+  {id:'mirror', name:' (mirror)', fn: s => mapWithTable(s, MIRROR)}
+];
 
-/* Plain (identity) */
-transforms.push({name:'Plain', category:'Basic', fn: s=> s, sample:'Plain text'});
+/* Build final TRANSFORMS array programmatically */
+let TRANSFORMS = [];
+// first include all base transforms
+BASE_TRANSFORMS.forEach(t => TRANSFORMS.push(Object.assign({}, t)));
 
-/* Bold (Mathematical Bold) */
-transforms.push({name:'Bold', category:'Basic', fn: s=> mapAlpha(s, 0x1d41a, 0x1d400), sample:'Bold'});
-
-/* Italic (Mathematical Italic) */
-transforms.push({name:'Italic', category:'Basic', fn: s=> mapAlpha(s, 0x1d44e, 0x1d434), sample:'Italic'});
-
-/* Bold Italic */
-transforms.push({name:'Bold Italic', category:'Basic', fn: s=> mapAlpha(s, 0x1d482, 0x1d468), sample:'BoldItalic'});
-
-/* Monospace */
-transforms.push({name:'Monospace', category:'Basic', fn: s=> mapAlpha(s, 0x1d68a, 0x1d670), sample:'Monospace'});
-
-/* Double-struck (aka Blackboard Bold) */
-transforms.push({name:'Double-struck', category:'Math', fn: s=> mapAlpha(s, 0x1d552, 0x1d538), sample:'Double'});
-
-/* Fullwidth (wide) */
-transforms.push({name:'Fullwidth', category:'Fancy', fn: s=> s.split('').map(ch=>{
-  const code = ch.charCodeAt(0);
-  if(code >= 33 && code <= 126) return String.fromCodePoint(0xFF01 + (code - 33));
-  return ch;
-}).join(''), sample:'Fullwidth'});
-
-/* Circled (lowercase & uppercase as available) */
-function circled(s){
-  // circled alphabet starts at 0x24B6 for A, and 0x24D0 for a
-  return s.split('').map(ch=>{
-    const code=ch.charCodeAt(0);
-    if(code>=65 && code<=90) return String.fromCodePoint(0x24B6 + (code-65));
-    if(code>=97 && code<=122) return String.fromCodePoint(0x24D0 + (code-97));
-    return ch;
-  }).join('');
-}
-transforms.push({name:'Circled', category:'Fancy', fn: circled, sample:'Circled'});
-
-/* Parenthesis wrappers: letter -> (l)(e)(t) */
-transforms.push({name:'Parenthesis', category:'Wrappers', fn: s=> s.split('').map(c=>'('+c+')').join(''), sample:'Wrap'});
-
-/* Square wrappers */
-transforms.push({name:'Square boxes', category:'Wrappers', fn: s=> s.split('').map(c=>'['+c+']').join(''), sample:'Box'});
-
-/* Small Caps (approx — map lowercase to smallcaps unicode where possible) */
-const smallCapsMap = {
-  a:'ᴀ', b:'ʙ', c:'ᴄ', d:'ᴅ', e:'ᴇ', f:'ꜰ', g:'ɢ', h:'ʜ', i:'ɪ', j:'ᴊ', k:'ᴋ', l:'ʟ', m:'ᴍ',
-  n:'ɴ', o:'ᴏ', p:'ᴘ', q:'ǫ', r:'ʀ', s:'s', t:'ᴛ', u:'ᴜ', v:'ᴠ', w:'ᴡ', x:'x', y:'ʏ', z:'ᴢ'
-};
-transforms.push({name:'Small Caps', category:'Fancy', fn: s=> mapWithMap(s, Object.assign({}, smallCapsMap, Object.fromEntries(Object.entries(smallCapsMap).map(([k,v])=>[k.toUpperCase(),v])))), sample:'smallcaps'});
-
-/* Bold Fraktur (use some unicode approximations) */
-transforms.push({name:'Fraktur', category:'Fancy', fn: s=> mapAlpha(s, 0x1d51e, 0x1d504), sample:'Fraktur'});
-
-/* Upside-down (rotated text using map) */
-const upsideDownMap = {
-  a:'ɐ', b:'q', c:'ɔ', d:'p', e:'ǝ', f:'ɟ', g:'ƃ', h:'ɥ', i:'ᴉ', j:'ɾ', k:'ʞ', l:'ʃ', m:'ɯ',
-  n:'u', o:'o', p:'d', q:'b', r:'ɹ', s:'s', t:'ʇ', u:'n', v:'ʌ', w:'ʍ', x:'x', y:'ʎ', z:'z',
-  A:'∀', B:'𐐒', C:'Ɔ', D:'◖', E:'Ǝ', F:'Ⅎ', G:'⅁', H:'H', I:'I', J:'ſ', K:'⋊', L:'˥', M:'W',
-  N:'N', O:'O', P:'Ԁ', Q:'Q', R:'ᴚ', S:'S', T:'⊥', U:'∩', V:'Λ', W:'M', X:'X', Y:'⅄', Z:'Z',
-  '.':'˙', '?':'¿', '!':'¡', '"':',,', '\'':',', '(' : ')', ')':'(', '[':']', ']':'[', '{':'}', '}':'{', '<':'>','>':'<'
-};
-transforms.push({name:'Upside-down', category:'Fun', fn: s=> s.split('').reverse().map(ch=>upsideDownMap[ch]||upsideDownMap[ch.toLowerCase()]||ch).join(''), sample:'upside'});
-
-/* Stacked accents (combining diacritics) */
-const combining = ['\u0300','\u0301','\u0302','\u0303','\u0308','\u0304','\u0306','\u0307','\u0308','\u0327'];
-transforms.push({name:'Combining Accents', category:'Accents', fn: s=> s.split('').map(ch=> ch + combining.join('')).join(''), sample:'Accents'});
-
-/* Spaced (space between letters) */
-transforms.push({name:'Spaced', category:'Style', fn: s=> s.split('').join(' '), sample:'S p a c e d'});
-
-/* Dotted (add dot above each char) */
-transforms.push({name:'Dotted', category:'Accents', fn: s=> s.split('').map(c=> c + '\u0307').join(''), sample:'Dotted'});
-
-/* Bold Serif (use math bold) - fallback to Bold */
-transforms.push({name:'Bold Serif', category:'Fancy', fn: s=> mapAlpha(s, 0x1d56c, 0x1d554), sample:'BoldSerif'});
-
-/* Serif Italic */
-transforms.push({name:'Italic Serif', category:'Fancy', fn: s=> mapAlpha(s, 0x1d49e, 0x1d488), sample:'ItalicS'});
-
-/* Double-width spaced */
-transforms.push({name:'Full Spaced', category:'Style', fn: s=> s.split('').join('\u200A'), sample:'Full Spaced'});
-
-/* Mirrored (reverse characters visually) - simple reverse */
-transforms.push({name:'Reversed', category:'Fun', fn: s=> s.split('').reverse().join(''), sample:'Reversed'});
-
-/* Boxes using special box characters */
-transforms.push({name:'Black Square Wrap', category:'Wrappers', fn: s=> s.split('').map(c=>'▣'+c+'▣').join(''), sample:'▣A▣'});
-
-/* Bold monospace like */ 
-transforms.push({name:'Bold Monospace', category:'Basic', fn: s=> mapAlpha(s, 0x1d7f6, 0x1d7ec), sample:'MonoBold'});
-
-/* Subscript & superscript approximations */
-const subMap = {'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉','a':'ₐ','e':'ₑ','o':'ₒ','x':'ₓ','i':'ᵢ'};
-const superMap = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','a':'ᵃ','b':'ᵇ','c':'ᶜ','d':'ᵈ','e':'ᵉ','f':'ᶠ','g':'ᵍ','h':'ʰ','i':'ᶦ','j':'ʲ','k':'ᵏ','l':'ˡ','m':'ᵐ','n':'ⁿ','o':'ᵒ','p':'ᵖ','r':'ʳ','s':'ˢ','t':'ᵗ','u':'ᵘ','v':'ᵛ','w':'ʷ','y':'ʸ'};
-transforms.push({name:'Superscript', category:'Math', fn: s=> s.split('').map(c=> superMap[c]||superMap[c.toLowerCase()]||c).join(''), sample:'Sup' });
-transforms.push({name:'Subscript', category:'Math', fn: s=> s.split('').map(c=> subMap[c]||subMap[c.toLowerCase()]||c).join(''), sample:'Sub' });
-
-/* Braille-like dots (approx) */
-function braille(s){
-  return s.split('').map(c=>{
-    if(/\s/.test(c)) return '⠀';
-    const code = c.charCodeAt(0) % 256;
-    return String.fromCodePoint(0x2800 + (code % 256));
-  }).join('');
-}
-transforms.push({name:'Braille-ish', category:'Fun', fn: braille, sample:'Braille'});
-
-/* Small subset of decorative transforms using mapping tables (you can add many more) */
-const flippedMap = {'a':'ɒ','b':'d','c':'ɔ','d':'b','e':'ǝ','f':'ɟ','g':'ɓ','h':'ɥ','i':'ı','j':'ɾ','k':'ʞ','l':'l','m':'ɯ','n':'u','o':'o','p':'q','q':'p','r':'ɹ','s':'s','t':'ʇ','u':'n','v':'ʌ','w':'ʍ','x':'x','y':'ʎ','z':'z'};
-transforms.push({name:'Weird Flip', category:'Fun', fn: s=> s.split('').map(c=> flippedMap[c.toLowerCase()]||c).join(''), sample:'Flip'});
-
-/* Fancy: small boxed letters composed of unicode */
-transforms.push({name:'Circled Bold', category:'Fancy', fn: s=> s.split('').map(c=> '⓵').join(''), sample:'ⓐ'});
-
-/* Add more transforms here to reach 150+ — expand transforms array */
-
-/* ---------- end transforms ---------- */
-
-/* build categories list dynamically */
-const categories = [...new Set(transforms.map(t=>t.category))];
-
-/* UI wiring */
-const userText = el('userText'), generateBtn = el('generate'), resultsDiv = el('results'), countInfo = el('countInfo');
-const resultCount = el('resultCount'), copyAllBtn = el('copyAll'), downloadBtn = el('downloadTxt'), catList = el('catList'), showAllCats = el('showAllCats');
-const themeBtn = el('themeBtn'), sidebarToggle = el('sidebarToggle');
-
-let activeCategory = null; // null => show all
-let perCategoryShow = {}; // how many to show; load more increases this
-
-/* init perCategoryShow */
-categories.forEach(c => perCategoryShow[c] = 8);
-
-/* render categories buttons */
-function renderCategories(){
-  catList.innerHTML = '';
-  categories.forEach(cat => {
-    const b = document.createElement('button'); b.className='cat-btn'; b.textContent = cat + ' (' + transforms.filter(t=>t.category===cat).length + ')';
-    b.addEventListener('click', ()=>{ if(activeCategory===cat){ activeCategory=null; b.classList.remove('active'); } else { activeCategory = cat; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); } renderResults(); });
-    catList.appendChild(b);
-  });
-}
-renderCategories();
-
-/* render results for current input and category */
-function renderResults(){
-  resultsDiv.innerHTML = '';
-  const text = (userText.value || '').toString();
-  let list = transforms;
-  if(activeCategory) list = list.filter(t=>t.category===activeCategory);
-  // show first N per category when activeCategory==null; else show perCategoryShow[activeCategory]
-  if(!activeCategory){
-    // group by category
-    const groups = {};
-    list.forEach(t => { groups[t.category] = groups[t.category]||[]; groups[t.category].push(t); });
-    Object.keys(groups).forEach(cat=>{
-      const block = document.createElement('div'); block.style.marginBottom = '12px';
-      const hdr = document.createElement('div'); hdr.style.display='flex'; hdr.style.justifyContent='space-between'; hdr.style.alignItems='center';
-      const h = document.createElement('div'); h.innerHTML = `<strong>${cat}</strong> <span class="muted">(${groups[cat].length})</span>`;
-      const loadBtn = document.createElement('button'); loadBtn.className='load-more'; loadBtn.textContent = 'Load more'; loadBtn.style.display='inline-block'; loadBtn.style.padding='6px 10px';
-      // how many to show for this category
-      let show = perCategoryShow[cat] || 8;
-      const items = groups[cat].slice(0, show);
-      // add header and items
-      hdr.appendChild(h); hdr.appendChild(loadBtn);
-      block.appendChild(hdr);
-      const inner = document.createElement('div');
-      items.forEach(t=> inner.appendChild(makeResultNode(t, text)));
-      block.appendChild(inner);
-      // load more handler
-      loadBtn.addEventListener('click', ()=>{
-        perCategoryShow[cat] = Math.min((perCategoryShow[cat]||8) + 16, groups[cat].length);
-        renderResults();
-      });
-      resultsDiv.appendChild(block);
+// now generate combinations: for each base, apply each decorator and combinations of 2 decorators
+BASE_TRANSFORMS.forEach(base => {
+  DECORATORS.forEach(dec => {
+    TRANSFORMS.push({
+      id: base.id + '_' + dec.id,
+      name: base.name + dec.name,
+      cat: base.cat,
+      fn: compose(base.fn, dec.fn)
     });
-    // total count
-    const total = transforms.length;
-    resultCount.textContent = total;
-    countInfo.textContent = `${total} transforms available • client-side`;
-  } else {
-    // show only active category
-    const listCat = list.slice(0, perCategoryShow[activeCategory]||999);
-    listCat.forEach(t => resultsDiv.appendChild(makeResultNode(t, text)));
-    resultCount.textContent = listCat.length + ' in ' + activeCategory;
-    countInfo.textContent = `${transforms.length} transforms overall • showing ${listCat.length}`;
-    if(perCategoryShow[activeCategory] < transforms.filter(t=>t.category===activeCategory).length){
-      const lm = document.createElement('button'); lm.className='load-more'; lm.textContent = 'Load more'; lm.addEventListener('click', ()=>{ perCategoryShow[activeCategory] += 20; renderResults(); });
-      resultsDiv.appendChild(lm);
+  });
+  // combos of two decorators (limited)
+  for(let i=0;i<DECORATORS.length;i++){
+    for(let j=i+1;j<DECORATORS.length;j++){
+      const d1 = DECORATORS[i], d2 = DECORATORS[j];
+      TRANSFORMS.push({
+        id: base.id + '_' + d1.id + '_' + d2.id,
+        name: base.name + d1.name + d2.name,
+        cat: base.cat,
+        fn: compose(base.fn, compose(d1.fn, d2.fn))
+      });
     }
   }
-}
-
-/* create a result DOM node given transform and input */
-function makeResultNode(t, text){
-  const node = document.createElement('div'); node.className = 'res-item';
-  const left = document.createElement('div'); left.className='res-left';
-  const lab = document.createElement('div'); lab.className='label'; lab.textContent = t.name;
-  const out = document.createElement('div'); out.style.marginTop='6px'; out.style.fontSize='18px'; out.style.overflow='hidden';
-  let transformed = '';
-  try { transformed = t.fn(text || t.sample || 'Sample'); } catch(e){ transformed = '—'; }
-  out.textContent = transformed;
-  const sub = document.createElement('div'); sub.className='sub'; sub.textContent = t.category;
-  left.appendChild(lab); left.appendChild(out); left.appendChild(sub);
-
-  const actions = document.createElement('div'); actions.className='res-actions';
-  const useBtn = document.createElement('button'); useBtn.className='pill'; useBtn.textContent = 'Use';
-  const copyBtn = document.createElement('button'); copyBtn.className='pill'; copyBtn.textContent = 'Copy';
-  useBtn.addEventListener('click', ()=> { userText.value = transformed; userText.focus(); renderResults(); showToast('Used transform'); });
-  copyBtn.addEventListener('click', ()=> { copyText(transformed); });
-  actions.appendChild(useBtn); actions.appendChild(copyBtn);
-
-  node.appendChild(left); node.appendChild(actions);
-  return node;
-}
-
-/* generate handler */
-generateBtn.addEventListener('click', ()=> renderResults());
-userText.addEventListener('keydown', (e)=> { if(e.key === 'Enter'){ e.preventDefault(); renderResults(); } });
-
-/* Copy all */
-copyAllBtn.addEventListener('click', ()=> {
-  const t = transforms.map(t => t.name + ': ' + (t.fn(userText.value || t.sample || '') )).join('\n\n');
-  copyText(t);
 });
 
-/* Download as .txt */
+// additional generated stylistic transforms (fullwidth variants, doubled, wrapped with emoji, etc.)
+const EXTRA = [
+  {name:'Star-wrapped ✦', cat:'Decor', fn: s => `✦ ${s} ✦`},
+  {name:'Arrowed →', cat:'Decor', fn: s => Array.from(s).join(' → ')},
+  {name:'Underline-like', cat:'Decor', fn: s => s + '\n' + '-'.repeat(Math.min(40, s.length))},
+  {name:'Slashy /', cat:'Decor', fn: s => Array.from(s).map(c=>'/'+c).join('')},
+  {name:'Double-struck-like', cat:'Math', fn: s => mapWithTable(s, {A:'𝔸',B:'𝔹',C:'ℂ',D:'𝔻',E:'𝔼',F:'𝔽',G:'𝔾',H:'ℍ',I:'𝕀',J:'𝕁',K:'𝕂',L:'𝕃',M:'𝕄',N:'ℕ',O:'𝕆',P:'𝕡',Q:'𝕊',R:'ℝ',S:'𝕊',T:'𝕋',U:'𝕌',V:'𝕍',W:'𝕎',X:'𝕏',Y:'𝕐',Z:'ℤ'})},
+  {name:'Weird flip', cat:'Fun', fn: s => mapWithTable(s, {a:'ɒ',b:'d',c:'ɔ',d:'b',e:'ǝ',f:'ɟ',g:'ƃ',h:'ɥ',i:'ᴉ',j:'ɾ',k:'ʞ',l:'ʃ',m:'ɯ',n:'u',o:'o',p:'q',q:'p',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z'})},
+];
+EXTRA.forEach((ex,i) => {
+  TRANSFORMS.push({id:'extra_'+i, name:ex.name, cat:ex.cat, fn:ex.fn});
+});
+
+// Ensure uniqueness and order
+const seen = new Set();
+TRANSFORMS = TRANSFORMS.filter(t => {
+  if(seen.has(t.name)) return false;
+  seen.add(t.name);
+  return true;
+});
+
+// If the generation didn't reach 150, produce more simple decorated variations programmatically
+let idx = 0;
+while(TRANSFORMS.length < 160){
+  const base = BASE_TRANSFORMS[idx % BASE_TRANSFORMS.length];
+  const dec = DECORATORS[idx % DECORATORS.length];
+  TRANSFORMS.push({
+    id: base.id + '_auto'+idx,
+    name: base.name + dec.name + ' #' + (Math.floor(idx/DECORATORS.length)+1),
+    cat: base.cat,
+    fn: compose(base.fn, dec.fn)
+  });
+  idx++;
+}
+
+/* ---------- UI: render grouped categories with per-category Load more ---------- */
+function groupByCategory(list){
+  const out = {};
+  list.forEach(t => { out[t.cat] = out[t.cat]||[]; out[t.cat].push(t); });
+  return out;
+}
+const grouped = groupByCategory(TRANSFORMS);
+const perCategoryDefault = 12; // initial show per category
+const showCount = {};
+Object.keys(grouped).forEach(k => showCount[k] = perCategoryDefault);
+
+function makeRow(transform, text){
+  let out = '';
+  try{ out = transform.fn(text || ''); }catch(e){ out = text; }
+  const row = document.createElement('div'); row.className = 'result-row';
+  const left = document.createElement('div'); left.className='result-left';
+  const title = document.createElement('div'); title.className='result-title'; title.textContent = out;
+  const sub = document.createElement('div'); sub.className='result-sub'; sub.textContent = transform.name;
+  left.appendChild(title); left.appendChild(sub);
+
+  const actions = document.createElement('div'); actions.className='result-actions';
+  const copyBtn = document.createElement('button'); copyBtn.className='btn copy'; copyBtn.textContent='Copy';
+  copyBtn.addEventListener('click', async ()=> {
+    await copyText(out); copyBtn.textContent='Copied'; setTimeout(()=>copyBtn.textContent='Copy',800);
+    showToast('Copied');
+  });
+  const useBtn = document.createElement('button'); useBtn.className='btn use'; useBtn.textContent='Use';
+  useBtn.addEventListener('click', ()=> { inputText.value = out; inputText.focus(); });
+  actions.appendChild(copyBtn); actions.appendChild(useBtn);
+
+  row.appendChild(left); row.appendChild(actions);
+  return row;
+}
+
+function renderAll(text){
+  // clear previous category blocks
+  document.querySelectorAll('.cat-block').forEach(n=>n.remove());
+  const cats = Object.keys(grouped).sort();
+  cats.forEach(cat => {
+    const arr = grouped[cat] || [];
+    const block = document.createElement('div'); block.className='card cat-block';
+    const heading = document.createElement('div'); heading.className='category-title'; heading.textContent = `${cat} (${arr.length})`;
+    block.appendChild(heading);
+    const listWrap = document.createElement('div');
+    const toShow = Math.min(showCount[cat] || perCategoryDefault, arr.length);
+    for(let i=0;i<toShow;i++){
+      listWrap.appendChild(makeRow(arr[i], text));
+    }
+    block.appendChild(listWrap);
+    if(arr.length > toShow){
+      const lm = document.createElement('button'); lm.className='load-more'; lm.textContent='Load more';
+      lm.addEventListener('click', ()=> {
+        const now = Math.min((showCount[cat]||perCategoryDefault)+24, arr.length);
+        showCount[cat] = now;
+        for(let i=toShow;i<now;i++) listWrap.appendChild(makeRow(arr[i], text));
+        if(now >= arr.length) lm.remove();
+      });
+      block.appendChild(lm);
+    }
+    results.appendChild(block);
+  });
+  countLabel.textContent = TRANSFORMS.length;
+}
+
+/* initial render with default input */
+renderAll(inputText.value || 'PirateRuler');
+
+/* ---------- buttons ---------- */
+generateBtn.addEventListener('click', ()=> {
+  const t = inputText.value || '';
+  if(!t.trim()) return alert('Type some text first.');
+  // clear existing .cat-block nodes to re-render
+  renderAll(t);
+});
+
+inputText.addEventListener('keydown', (e)=> { if(e.key === 'Enter') generateBtn.click(); });
+
+copyAllBtn.addEventListener('click', async ()=> {
+  const t = inputText.value || '';
+  if(!t.trim()) return alert('Type some text first.');
+  let out = '';
+  Object.keys(grouped).sort().forEach(cat => {
+    out += cat + '\n';
+    grouped[cat].forEach(tr => out += (tr.fn(t) || '') + '\n');
+    out += '\n';
+  });
+  await copyText(out); showToast('All transforms copied');
+});
+
 downloadBtn.addEventListener('click', ()=> {
-  const txt = transforms.map(t => (t.fn(userText.value || t.sample || ''))).join('\n');
-  const blob = new Blob([txt], {type:'text/plain'}); const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'pirateruler-fonts.txt'; a.click(); URL.revokeObjectURL(a.href);
+  const t = inputText.value || '';
+  if(!t.trim()) return alert('Type some text first.');
+  let out = '';
+  Object.keys(grouped).sort().forEach(cat => {
+    out += cat + '\n';
+    grouped[cat].forEach(tr => out += (tr.fn(t) || '') + '\n');
+    out += '\n';
+  });
+  downloadText('pirateruler-fonts.txt', out);
 });
 
-/* quick: populate initial */
-renderResults();
-
-/* show counts in header */
-el('countInfo').textContent = transforms.length + ' transforms loaded';
-
-/* show all categories button */
-showAllCats.addEventListener('click', ()=> { activeCategory = null; document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active')); renderResults(); });
-
-/* sidebar toggle simple (for mobile) */
-sidebarToggle.addEventListener('click', ()=> {
-  const s = document.querySelector('.sidebar');
-  if(s.style.display === 'none' || getComputedStyle(s).display === 'none'){ s.style.display = 'block'; } else { s.style.display = 'none'; }
-});
-
-/* theme */
-(function initTheme(){
-  const t = localStorage.getItem('pr-font-theme') || 'light';
-  applyTheme(t);
-})();
-themeBtn.addEventListener('click', ()=> {
-  const list = ['light','dark','ocean','sunset'], current = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-  const next = list[(list.indexOf(current)+1) % list.length];
-  applyTheme(next);
-});
-function applyTheme(name){
-  document.documentElement.classList.remove('dark','ocean','sunset');
-  if(name==='dark') document.documentElement.classList.add('dark');
-  if(name==='ocean') document.documentElement.classList.add('ocean');
-  if(name==='sunset') document.documentElement.classList.add('sunset');
+/* ---------- theme and sidebar behavior ---------- */
+themeBtn.addEventListener('click', ()=> { themeList.style.display = themeList.style.display === 'block' ? 'none' : 'block'; });
+document.querySelectorAll('.theme-item').forEach(it => it.addEventListener('click', ()=> {
+  const name = it.dataset.theme;
+  ['dark','ocean','sunset'].forEach(c=>document.documentElement.classList.remove(c));
+  if(name !== 'light') document.documentElement.classList.add(name);
   themeBtn.textContent = (name.charAt(0).toUpperCase()+name.slice(1)) + ' ▾';
-  localStorage.setItem('pr-font-theme', name);
-}
+  localStorage.setItem('pr-fonts-theme', name);
+  themeList.style.display = 'none';
+}));
+(function(){ const t=localStorage.getItem('pr-fonts-theme')||'light'; if(t!=='light') document.documentElement.classList.add(t); themeBtn.textContent = (t.charAt(0).toUpperCase()+t.slice(1)) + ' ▾'; })();
 
-/* show year */
-el('year').textContent = new Date().getFullYear();
+// Sidebar: hidden by default, toggled by menu button (desktop & mobile)
+hambBtn.addEventListener('click', ()=> {
+  if(sidebar.style.display === 'block'){ sidebar.style.display='none'; sidebar.setAttribute('aria-hidden','true'); }
+  else { sidebar.style.display='block'; sidebar.setAttribute('aria-hidden','false'); }
+});
+closeSidebar.addEventListener('click', ()=> { sidebar.style.display='none'; sidebar.setAttribute('aria-hidden','true'); });
 
-/* accessibility: focus on input */
-userText.focus();
+// hide theme list when clicking outside
+document.addEventListener('click', (e)=> { if(!document.getElementById('themeSelectWrap')?.contains(e.target)) themeList.style.display='none'; });
 
-/* End of script */
+/* ---------- done ---------- */
 </script>
 </body>
 </html>
