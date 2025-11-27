@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RagnarHub — Safe Demo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Age gate -->
+  <div id="ageGate" class="modal">
+    <div class="modal-content">
+      <h2>Age Verification</h2>
+      <p>You must be 18+ to enter this site. By entering you confirm you are an adult.</p>
+      <button id="enterBtn">I am 18+</button>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="logo">RagnarHub</div> <!-- text logo -->
+    <form id="searchForm" class="search-form">
+      <input id="searchInput" type="search" placeholder="Search videos, performers, tags..." />
+      <button type="submit">Search</button>
+    </form>
+    <nav class="top-links">
+      <a href="#">Home</a>
+      <a href="category.html">Categories</a>
+      <a href="#">Pornstars</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <aside class="sidebar">
+      <h3>Categories</h3>
+      <ul id="categoryList">
+        <!-- will be filled by JS -->
+      </ul>
+      <hr />
+      <h3>Filters</h3>
+      <button class="chip" data-filter="hd">HD</button>
+      <button class="chip" data-filter="recent">Recent</button>
+      <button class="chip" data-filter="trending">Trending</button>
+    </aside>
+
+    <section class="content">
+      <h2>Trending</h2>
+      <div id="videosGrid" class="grid">
+        <!-- video cards -->
+      </div>
+      <div id="loadMoreWrap" class="load-more">
+        <button id="loadMore">Load more</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; RagnarHub — demo site. No ads. No copyrighted logos. Use legally.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
