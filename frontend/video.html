@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Video — RagnarHub</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">RagnarHub</div>
+    <form id="searchForm" class="search-form">
+      <input id="searchInput" type="search" placeholder="Search videos..." />
+      <button type="submit">Search</button>
+    </form>
+    <nav class="top-links">
+      <a href="index.html">Home</a>
+      <a href="category.html">Categories</a>
+    </nav>
+  </header>
+
+  <main class="container single">
+    <article class="video-player">
+      <div id="playerWrap" class="player-placeholder">
+        <!-- If provider returns embed_url, we place iframe here -->
+        <p>Video player will load here (embed/iframe/HLS as allowed by provider).</p>
+      </div>
+
+      <h1 id="videoTitle">Video title</h1>
+      <p id="videoMeta">By <span id="videoPerformer"></span> • <span id="videoDuration"></span></p>
+
+      <section id="videoDesc">
+        <p>Description placeholder.</p>
+      </section>
+    </article>
+
+    <aside class="sidebar">
+      <h3>Related</h3>
+      <div id="relatedList"></div>
+    </aside>
+  </main>
+
+  <footer>
+    <p>&copy; RagnarHub — demo site.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
